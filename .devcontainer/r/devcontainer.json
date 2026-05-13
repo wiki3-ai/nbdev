@@ -1,16 +1,11 @@
 // nbdev devcontainer — Jupyter Docker Stacks "r" variant.
 //
 // Adds R + tidyverse and the IRkernel for R notebooks.
+//
+// Consumes the published GHCR image (exemplar of the downstream pattern).
 {
     "name": "nbdev (r)",
-    "build": {
-        "context": "../..",
-        "dockerfile": "../../Dockerfile",
-        "args": {
-            "BASE_IMAGE": "quay.io/jupyter/r-notebook:latest",
-            "QUARTO_VERSION": "latest"
-        }
-    },
+    "image": "ghcr.io/wiki3-ai/nbdev-devcontainer:r",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -25,7 +20,10 @@
         }
     },
     "remoteUser": "jovyan",
-    "runArgs": ["--user", "root"],
+    "runArgs": [
+        "--user",
+        "root"
+    ],
     "overrideCommand": false,
     "containerEnv": {
         "GRANT_SUDO": "no",
@@ -36,11 +34,21 @@
     },
     "workspaceFolder": "/home/jovyan/work",
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/jovyan/work,type=bind,consistency=cached",
-    "forwardPorts": [8888, 3000, 4200],
+    "forwardPorts": [
+        8888,
+        3000,
+        4200
+    ],
     "portsAttributes": {
-        "8888": {"label": "Jupyter"},
-        "3000": {"label": "Quarto preview"},
-        "4200": {"label": "nbdev preview"}
+        "8888": {
+            "label": "Jupyter"
+        },
+        "3000": {
+            "label": "Quarto preview"
+        },
+        "4200": {
+            "label": "nbdev preview"
+        }
     },
-    "postCreateCommand": "pip install -e '.[dev]' && nbdev-install-hooks || true"
+    "postCreateCommand": "nbdev-install-hooks || true"
 }

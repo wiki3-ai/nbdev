@@ -4,16 +4,14 @@
 // Docker Stacks base image. VS Code (and GitHub Codespaces) show a picker
 // for these when you choose "Reopen in Container".
 // See https://github.com/jupyter/docker-stacks/tree/main/images
+//
+// This variant consumes the published GHCR image rather than building from
+// the repo Dockerfile — it is an exemplar of the "downstream" pattern
+// documented in examples/downstream-devcontainer.json. Only the `nbdev`
+// variant builds from source.
 {
     "name": "nbdev (minimal)",
-    "build": {
-        "context": "../..",
-        "dockerfile": "../../Dockerfile",
-        "args": {
-            "BASE_IMAGE": "quay.io/jupyter/minimal-notebook:latest",
-            "QUARTO_VERSION": "latest"
-        }
-    },
+    "image": "ghcr.io/wiki3-ai/nbdev-devcontainer:minimal",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -34,7 +32,10 @@
     // Start the container as root so the Jupyter Docker Stacks `start.sh`
     // entrypoint can honor GRANT_SUDO / CHOWN_HOME and then drop privileges
     // to NB_USER (jovyan). VS Code itself still attaches as `remoteUser`.
-    "runArgs": ["--user", "root"],
+    "runArgs": [
+        "--user",
+        "root"
+    ],
     // Let the image's CMD (`start-notebook.py`) run Jupyter Lab instead of
     // VS Code replacing it with `sleep infinity`. start.sh keeps the
     // container alive in the foreground.
@@ -54,11 +55,21 @@
     },
     "workspaceFolder": "/home/jovyan/work",
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/jovyan/work,type=bind,consistency=cached",
-    "forwardPorts": [8888, 3000, 4200],
+    "forwardPorts": [
+        8888,
+        3000,
+        4200
+    ],
     "portsAttributes": {
-        "8888": {"label": "Jupyter"},
-        "3000": {"label": "Quarto preview"},
-        "4200": {"label": "nbdev preview"}
+        "8888": {
+            "label": "Jupyter"
+        },
+        "3000": {
+            "label": "Quarto preview"
+        },
+        "4200": {
+            "label": "nbdev preview"
+        }
     },
-    "postCreateCommand": "pip install -e '.[dev]' && nbdev-install-hooks || true"
+    "postCreateCommand": "nbdev-install-hooks || true"
 }

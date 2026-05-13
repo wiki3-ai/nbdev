@@ -19,12 +19,14 @@ you'll be prompted to pick one:
 | `nbdev (pyspark)` | `quay.io/jupyter/pyspark-notebook` | Apache Spark + PySpark; Spark UI ports 4040-4042 forwarded. |
 | `nbdev (all-spark)` | `quay.io/jupyter/all-spark-notebook` | Spark with Python, R, and Scala kernels. |
 
-The `nbdev` variant is the recommended one for working on nbdev itself. The
-rest mirror the published GHCR images so contributors can sanity-check that
-downstream content repos will work on each Jupyter Docker Stacks variant.
-
-All variants share the same [Dockerfile](../Dockerfile) at the repo root —
-they only differ in the `BASE_IMAGE` build arg.
+The `nbdev` variant is the recommended one for working on nbdev itself, and
+is the **only** variant that builds from the repo [Dockerfile](../Dockerfile).
+The rest pull the prebuilt image straight from GHCR
+(`ghcr.io/wiki3-ai/nbdev-devcontainer:<variant>`) — they are exemplars of
+the "downstream" usage pattern documented in
+[`../examples/downstream-devcontainer.json`](../examples/downstream-devcontainer.json),
+and let contributors sanity-check that downstream content repos will work on
+each Jupyter Docker Stacks variant without rebuilding locally.
 
 ## What each container gives you
 

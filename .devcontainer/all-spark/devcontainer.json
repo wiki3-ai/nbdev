@@ -2,16 +2,11 @@
 //
 // Adds Apache Spark with Python, R, and Scala kernels. Spark UI ports
 // (4040 and friends) are forwarded.
+//
+// Consumes the published GHCR image (exemplar of the downstream pattern).
 {
     "name": "nbdev (all-spark)",
-    "build": {
-        "context": "../..",
-        "dockerfile": "../../Dockerfile",
-        "args": {
-            "BASE_IMAGE": "quay.io/jupyter/all-spark-notebook:latest",
-            "QUARTO_VERSION": "latest"
-        }
-    },
+    "image": "ghcr.io/wiki3-ai/nbdev-devcontainer:all-spark",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -26,7 +21,10 @@
         }
     },
     "remoteUser": "jovyan",
-    "runArgs": ["--user", "root"],
+    "runArgs": [
+        "--user",
+        "root"
+    ],
     "overrideCommand": false,
     "containerEnv": {
         "GRANT_SUDO": "no",
@@ -37,14 +35,33 @@
     },
     "workspaceFolder": "/home/jovyan/work",
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/jovyan/work,type=bind,consistency=cached",
-    "forwardPorts": [8888, 3000, 4200, 4040, 4041, 4042],
+    "forwardPorts": [
+        8888,
+        3000,
+        4200,
+        4040,
+        4041,
+        4042
+    ],
     "portsAttributes": {
-        "8888": {"label": "Jupyter"},
-        "3000": {"label": "Quarto preview"},
-        "4200": {"label": "nbdev preview"},
-        "4040": {"label": "Spark UI"},
-        "4041": {"label": "Spark UI (2nd context)"},
-        "4042": {"label": "Spark UI (3rd context)"}
+        "8888": {
+            "label": "Jupyter"
+        },
+        "3000": {
+            "label": "Quarto preview"
+        },
+        "4200": {
+            "label": "nbdev preview"
+        },
+        "4040": {
+            "label": "Spark UI"
+        },
+        "4041": {
+            "label": "Spark UI (2nd context)"
+        },
+        "4042": {
+            "label": "Spark UI (3rd context)"
+        }
     },
-    "postCreateCommand": "pip install -e '.[dev]' && nbdev-install-hooks || true"
+    "postCreateCommand": "nbdev-install-hooks || true"
 }

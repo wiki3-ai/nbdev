@@ -11,12 +11,12 @@
 // Downstream content repos should NOT copy this file — they should consume
 // the published GHCR image instead. See examples/downstream-devcontainer.json.
 {
-    "name": "nbdev ★ recommended for contributors",
+    "name": "nbdev ★ for development of nbdev",
     "build": {
         "context": "../..",
         "dockerfile": "../../Dockerfile",
         "args": {
-            "BASE_IMAGE": "quay.io/jupyter/scipy-notebook:latest",
+            "BASE_IMAGE": "quay.io/jupyter/minimal-notebook:latest",
             "QUARTO_VERSION": "latest"
         }
     },
@@ -49,7 +49,10 @@
         }
     },
     "remoteUser": "jovyan",
-    "runArgs": ["--user", "root"],
+    "runArgs": [
+        "--user",
+        "root"
+    ],
     "overrideCommand": false,
     "containerEnv": {
         // Sudo on by default for contributors — easier to install/debug tools.
@@ -61,11 +64,21 @@
     },
     "workspaceFolder": "/home/jovyan/work",
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/jovyan/work,type=bind,consistency=cached",
-    "forwardPorts": [8888, 3000, 4200],
+    "forwardPorts": [
+        8888,
+        3000,
+        4200
+    ],
     "portsAttributes": {
-        "8888": {"label": "Jupyter"},
-        "3000": {"label": "Quarto preview"},
-        "4200": {"label": "nbdev preview"}
+        "8888": {
+            "label": "Jupyter"
+        },
+        "3000": {
+            "label": "Quarto preview"
+        },
+        "4200": {
+            "label": "nbdev preview"
+        }
     },
     "postCreateCommand": "pip install -e '.[dev]' && nbdev-install-hooks && pre-commit install || true"
 }
