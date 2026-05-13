@@ -48,4 +48,8 @@ USER ${NB_UID}
 
 RUN pip install --no-cache-dir "nbdev[dev]" pre-commit
 
+# Ensure Quarto uses the conda Python (which has Jupyter, PyYAML, etc.)
+# rather than the OS /usr/bin/python3, which lacks these packages.
+ENV QUARTO_PYTHON=/opt/conda/bin/python
+
 WORKDIR "${HOME}"

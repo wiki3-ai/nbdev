@@ -19,6 +19,22 @@
             "QUARTO_VERSION": "latest"
         }
     },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter",
+                "quarto.quarto"
+            ],
+            "settings": {
+                // The Quarto VS Code extension uses the Python interpreter selected by
+                // ms-python.python (not the QUARTO_PYTHON env var), so pin it to the
+                // conda Python that has jupyter + pyyaml installed.
+                "python.defaultInterpreterPath": "/opt/conda/bin/python",
+                "quarto.python.pythonPath": "/opt/conda/bin/python"
+            }
+        }
+    },
     "remoteUser": "jovyan",
     "containerUser": "jovyan",
     "workspaceFolder": "/home/jovyan/work",
@@ -30,13 +46,5 @@
         "4200": {"label": "nbdev preview"}
     },
     "postCreateCommand": "pip install -e '.[dev]' && nbdev-install-hooks || true",
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "ms-python.python",
-                "ms-toolsai.jupyter",
-                "quarto.quarto"
-            ]
-        }
-    }
+    "postStartCommand": "nohup start.sh jupyter lab --NotebookApp.token='' --ServerApp.disable_check_xsrf=True 2>&1 > /tmp/jupyter.log &"
 }
