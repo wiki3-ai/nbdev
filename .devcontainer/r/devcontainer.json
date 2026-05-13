@@ -1,0 +1,46 @@
+// nbdev devcontainer — Jupyter Docker Stacks "r" variant.
+//
+// Adds R + tidyverse and the IRkernel for R notebooks.
+{
+    "name": "nbdev (r)",
+    "build": {
+        "context": "../..",
+        "dockerfile": "../../Dockerfile",
+        "args": {
+            "BASE_IMAGE": "quay.io/jupyter/r-notebook:latest",
+            "QUARTO_VERSION": "latest"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter",
+                "quarto.quarto"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/opt/conda/bin/python",
+                "quarto.python.pythonPath": "/opt/conda/bin/python"
+            }
+        }
+    },
+    "remoteUser": "jovyan",
+    "runArgs": ["--user", "root"],
+    "overrideCommand": false,
+    "containerEnv": {
+        "GRANT_SUDO": "no",
+        "NOTEBOOK_ARGS": "--ServerApp.token='SECRET' --ServerApp.password='' --ServerApp.disable_check_xsrf=True",
+        "RESTARTABLE": "yes",
+        "QUARTO_PATH": "/opt/quarto/bin/quarto",
+        "QUARTO_PYTHON": "/opt/conda/bin/python"
+    },
+    "workspaceFolder": "/home/jovyan/work",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/jovyan/work,type=bind,consistency=cached",
+    "forwardPorts": [8888, 3000, 4200],
+    "portsAttributes": {
+        "8888": {"label": "Jupyter"},
+        "3000": {"label": "Quarto preview"},
+        "4200": {"label": "nbdev preview"}
+    },
+    "postCreateCommand": "pip install -e '.[dev]' && nbdev-install-hooks || true"
+}

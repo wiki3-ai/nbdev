@@ -8,11 +8,20 @@ you'll be prompted to pick one:
 
 | Variant | Base image | Use it when… |
 | --- | --- | --- |
+| **`nbdev` ★** | `quay.io/jupyter/scipy-notebook` | **You are contributing to nbdev itself.** Adds black, GitLens, GitHub PR + pre-commit and format-on-save. |
 | `nbdev (minimal)` | `quay.io/jupyter/minimal-notebook` | You only need Python + Jupyter + Quarto + nbdev. Smallest / fastest. |
-| `nbdev (scipy)` | `quay.io/jupyter/scipy-notebook` | You want the scientific Python stack (numpy, pandas, matplotlib, scikit-learn, …). |
-| `nbdev (datascience)` | `quay.io/jupyter/datascience-notebook` | You also want R (tidyverse) and Julia kernels. |
-| `nbdev (pytorch)` | `quay.io/jupyter/pytorch-notebook` | You want PyTorch preinstalled. |
-| `nbdev (tensorflow)` | `quay.io/jupyter/tensorflow-notebook` | You want TensorFlow preinstalled. |
+| `nbdev (r)` | `quay.io/jupyter/r-notebook` | R + tidyverse + IRkernel. |
+| `nbdev (julia)` | `quay.io/jupyter/julia-notebook` | Julia + IJulia. |
+| `nbdev (scipy)` | `quay.io/jupyter/scipy-notebook` | The scientific Python stack (numpy, pandas, matplotlib, scikit-learn, …). |
+| `nbdev (tensorflow)` | `quay.io/jupyter/tensorflow-notebook` | TensorFlow preinstalled. |
+| `nbdev (pytorch)` | `quay.io/jupyter/pytorch-notebook` | PyTorch preinstalled. |
+| `nbdev (datascience)` | `quay.io/jupyter/datascience-notebook` | Python + R + Julia in one image. |
+| `nbdev (pyspark)` | `quay.io/jupyter/pyspark-notebook` | Apache Spark + PySpark; Spark UI ports 4040-4042 forwarded. |
+| `nbdev (all-spark)` | `quay.io/jupyter/all-spark-notebook` | Spark with Python, R, and Scala kernels. |
+
+The `nbdev` variant is the recommended one for working on nbdev itself. The
+rest mirror the published GHCR images so contributors can sanity-check that
+downstream content repos will work on each Jupyter Docker Stacks variant.
 
 All variants share the same [Dockerfile](../Dockerfile) at the repo root —
 they only differ in the `BASE_IMAGE` build arg.

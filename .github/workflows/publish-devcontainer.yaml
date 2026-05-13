@@ -36,10 +36,14 @@ jobs:
       matrix:
         variant:
           - { name: minimal,     base: 'quay.io/jupyter/minimal-notebook:latest' }
+          - { name: r,           base: 'quay.io/jupyter/r-notebook:latest' }
+          - { name: julia,       base: 'quay.io/jupyter/julia-notebook:latest' }
           - { name: scipy,       base: 'quay.io/jupyter/scipy-notebook:latest' }
-          - { name: datascience, base: 'quay.io/jupyter/datascience-notebook:latest' }
-          - { name: pytorch,     base: 'quay.io/jupyter/pytorch-notebook:latest' }
           - { name: tensorflow,  base: 'quay.io/jupyter/tensorflow-notebook:latest' }
+          - { name: pytorch,     base: 'quay.io/jupyter/pytorch-notebook:latest' }
+          - { name: datascience, base: 'quay.io/jupyter/datascience-notebook:latest' }
+          - { name: pyspark,     base: 'quay.io/jupyter/pyspark-notebook:latest' }
+          - { name: all-spark,   base: 'quay.io/jupyter/all-spark-notebook:latest' }
     steps:
       - name: Checkout
         uses: actions/checkout@v4
