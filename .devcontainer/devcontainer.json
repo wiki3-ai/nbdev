@@ -1,0 +1,42 @@
+// nbdev development container.
+//
+// Builds the repo's Dockerfile, which layers Quarto and nbdev's dev
+// dependencies on top of a configurable Jupyter Docker Stacks base image.
+// Switch the base image by changing the BASE_IMAGE build arg below to any
+// image from https://github.com/jupyter/docker-stacks/tree/main/images, e.g.
+//   quay.io/jupyter/minimal-notebook:latest
+//   quay.io/jupyter/scipy-notebook:latest
+//   quay.io/jupyter/datascience-notebook:latest
+//   quay.io/jupyter/pytorch-notebook:latest
+//   quay.io/jupyter/tensorflow-notebook:latest
+{
+    "name": "nbdev",
+    "build": {
+        "context": "..",
+        "dockerfile": "../Dockerfile",
+        "args": {
+            "BASE_IMAGE": "quay.io/jupyter/minimal-notebook:latest",
+            "QUARTO_VERSION": "latest"
+        }
+    },
+    "remoteUser": "jovyan",
+    "containerUser": "jovyan",
+    "workspaceFolder": "/home/jovyan/work",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/jovyan/work,type=bind,consistency=cached",
+    "forwardPorts": [8888, 3000, 4200],
+    "portsAttributes": {
+        "8888": {"label": "Jupyter"},
+        "3000": {"label": "Quarto preview"},
+        "4200": {"label": "nbdev preview"}
+    },
+    "postCreateCommand": "pip install -e '.[dev]' && nbdev-install-hooks || true",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter",
+                "quarto.quarto"
+            ]
+        }
+    }
+}
