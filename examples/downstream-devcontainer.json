@@ -1,0 +1,75 @@
+// Template devcontainer.json for downstream content repos that consume the
+// prebuilt nbdev devcontainer image from GHCR.
+//
+// To use this:
+//   1. Copy this file to `.devcontainer/devcontainer.json` in your repo
+//      (or to `.devcontainer/<variant>/devcontainer.json` if you want a
+//      picker between several variants).
+//   2. Pick the image tag that matches the Jupyter Docker Stacks variant
+//      you want: minimal | scipy | datascience | pytorch | tensorflow.
+//   3. Change NOTEBOOK_ARGS to use a real token before sharing the URL.
+//   4. Commit and open in VS Code / Codespaces; click "Reopen in Container".
+//
+// No Dockerfile and no `pip install -e` required — the image already has
+// nbdev, Quarto, and the Jupyter stack baked in.
+{
+    "name": "my-nbdev-content",
+
+    // Pin to a variant tag. Replace ":scipy" with one of:
+    //   :minimal :scipy :datascience :pytorch :tensorflow
+    // For reproducibility, pin to an immutable tag like ":scipy-1.2.3" or
+    // ":scipy-<sha>" instead of the rolling ":scipy".
+    "image": "ghcr.io/wiki3-ai/nbdev-devcontainer:scipy",
+
+    "remoteUser": "jovyan",
+
+    // Start as root so the Jupyter Docker Stacks `start.sh` entrypoint can
+    // honor GRANT_SUDO and then drop privileges to jovyan.
+    "runArgs": ["--user", "root"],
+
+    // Let the image's CMD (`start-notebook.py`) keep running Jupyter Lab.
+    "overrideCommand": false,
+
+    "containerEnv": {
+        // Set to "yes" to grant passwordless sudo to jovyan.
+        "GRANT_SUDO": "no",
+
+        // Jupyter Lab launch args. Pick a real token before sharing!
+        "NOTEBOOK_ARGS": "--ServerApp.token='CHANGE-ME' --ServerApp.password='' --ServerApp.disable_check_xsrf=True",
+
+        // Restart Jupyter if it dies.
+        "RESTARTABLE": "yes",
+
+        // Help the Quarto VS Code extension find Quarto + Python.
+        "QUARTO_PATH": "/opt/quarto/bin/quarto",
+        "QUARTO_PYTHON": "/opt/conda/bin/python"
+    },
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter",
+                "quarto.quarto"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/opt/conda/bin/python",
+                "quarto.python.pythonPath": "/opt/conda/bin/python"
+            }
+        }
+    },
+
+    "workspaceFolder": "/home/jovyan/work",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/jovyan/work,type=bind,consistency=cached",
+
+    "forwardPorts": [8888, 3000, 4200],
+    "portsAttributes": {
+        "8888": {"label": "Jupyter"},
+        "3000": {"label": "Quarto preview"},
+        "4200": {"label": "nbdev preview"}
+    },
+
+    // Install nbdev's git hooks (clean notebook metadata on commit) if this
+    // is a git repo. Skipped silently otherwise.
+    "postCreateCommand": "nbdev-install-hooks || true"
+}

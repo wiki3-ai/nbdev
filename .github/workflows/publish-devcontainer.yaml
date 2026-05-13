@@ -1,0 +1,94 @@
+name: Publish devcontainer images
+
+# Builds the nbdev devcontainer image for each Jupyter Docker Stacks variant
+# and pushes them to GitHub Container Registry so downstream content repos
+# can consume a ready-to-use image with a single line in their devcontainer.json:
+#
+#   "image": "ghcr.io/wiki3-ai/nbdev-devcontainer:scipy"
+#
+# Tags published per variant:
+#   :<variant>                         always (rolling latest of that variant)
+#   :<variant>-<branch>                on every push to a branch (e.g. -main)
+#   :<variant>-<semver> / -<maj>.<min> on git tags like vX.Y.Z
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  workflow_dispatch:
+  schedule:
+    # Weekly rebuild to pick up upstream Jupyter Docker Stacks + Quarto updates.
+    - cron: '0 7 * * 1'
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish-devcontainer-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        variant:
+          - { name: minimal,     base: 'quay.io/jupyter/minimal-notebook:latest' }
+          - { name: r,           base: 'quay.io/jupyter/r-notebook:latest' }
+          - { name: julia,       base: 'quay.io/jupyter/julia-notebook:latest' }
+          - { name: scipy,       base: 'quay.io/jupyter/scipy-notebook:latest' }
+          - { name: tensorflow,  base: 'quay.io/jupyter/tensorflow-notebook:latest' }
+          - { name: pytorch,     base: 'quay.io/jupyter/pytorch-notebook:latest' }
+          - { name: datascience, base: 'quay.io/jupyter/datascience-notebook:latest' }
+          - { name: pyspark,     base: 'quay.io/jupyter/pyspark-notebook:latest' }
+          - { name: all-spark,   base: 'quay.io/jupyter/all-spark-notebook:latest' }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute image tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/nbdev-devcontainer
+          tags: |
+            type=raw,value=${{ matrix.variant.name }}
+            type=raw,value=${{ matrix.variant.name }}-{{branch}},enable=${{ github.event_name == 'push' && github.ref_type == 'branch' }}
+            type=raw,value=${{ matrix.variant.name }}-{{sha}},enable=${{ github.event_name == 'push' && github.ref_type == 'branch' }}
+            type=semver,pattern=${{ matrix.variant.name }}-{{version}}
+            type=semver,pattern=${{ matrix.variant.name }}-{{major}}.{{minor}}
+          labels: |
+            org.opencontainers.image.title=nbdev-devcontainer (${{ matrix.variant.name }})
+            org.opencontainers.image.description=nbdev devcontainer based on jupyter/${{ matrix.variant.name }}-notebook with Quarto preinstalled
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.licenses=Apache-2.0
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            BASE_IMAGE=${{ matrix.variant.base }}
+            QUARTO_VERSION=latest
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.variant.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.variant.name }}

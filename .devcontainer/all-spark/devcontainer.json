@@ -1,0 +1,50 @@
+// nbdev devcontainer — Jupyter Docker Stacks "all-spark" variant.
+//
+// Adds Apache Spark with Python, R, and Scala kernels. Spark UI ports
+// (4040 and friends) are forwarded.
+{
+    "name": "nbdev (all-spark)",
+    "build": {
+        "context": "../..",
+        "dockerfile": "../../Dockerfile",
+        "args": {
+            "BASE_IMAGE": "quay.io/jupyter/all-spark-notebook:latest",
+            "QUARTO_VERSION": "latest"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter",
+                "quarto.quarto"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/opt/conda/bin/python",
+                "quarto.python.pythonPath": "/opt/conda/bin/python"
+            }
+        }
+    },
+    "remoteUser": "jovyan",
+    "runArgs": ["--user", "root"],
+    "overrideCommand": false,
+    "containerEnv": {
+        "GRANT_SUDO": "no",
+        "NOTEBOOK_ARGS": "--ServerApp.token='SECRET' --ServerApp.password='' --ServerApp.disable_check_xsrf=True",
+        "RESTARTABLE": "yes",
+        "QUARTO_PATH": "/opt/quarto/bin/quarto",
+        "QUARTO_PYTHON": "/opt/conda/bin/python"
+    },
+    "workspaceFolder": "/home/jovyan/work",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/jovyan/work,type=bind,consistency=cached",
+    "forwardPorts": [8888, 3000, 4200, 4040, 4041, 4042],
+    "portsAttributes": {
+        "8888": {"label": "Jupyter"},
+        "3000": {"label": "Quarto preview"},
+        "4200": {"label": "nbdev preview"},
+        "4040": {"label": "Spark UI"},
+        "4041": {"label": "Spark UI (2nd context)"},
+        "4042": {"label": "Spark UI (3rd context)"}
+    },
+    "postCreateCommand": "pip install -e '.[dev]' && nbdev-install-hooks || true"
+}

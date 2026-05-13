@@ -1,0 +1,64 @@
+// nbdev devcontainer — Jupyter Docker Stacks "minimal" variant.
+//
+// Each sibling folder under .devcontainer/ targets a different Jupyter
+// Docker Stacks base image. VS Code (and GitHub Codespaces) show a picker
+// for these when you choose "Reopen in Container".
+// See https://github.com/jupyter/docker-stacks/tree/main/images
+{
+    "name": "nbdev (minimal)",
+    "build": {
+        "context": "../..",
+        "dockerfile": "../../Dockerfile",
+        "args": {
+            "BASE_IMAGE": "quay.io/jupyter/minimal-notebook:latest",
+            "QUARTO_VERSION": "latest"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter",
+                "quarto.quarto"
+            ],
+            "settings": {
+                // The Quarto VS Code extension uses the Python interpreter selected by
+                // ms-python.python (not the QUARTO_PYTHON env var), so pin it to the
+                // conda Python that has jupyter + pyyaml installed.
+                "python.defaultInterpreterPath": "/opt/conda/bin/python",
+                "quarto.python.pythonPath": "/opt/conda/bin/python"
+            }
+        }
+    },
+    "remoteUser": "jovyan",
+    // Start the container as root so the Jupyter Docker Stacks `start.sh`
+    // entrypoint can honor GRANT_SUDO / CHOWN_HOME and then drop privileges
+    // to NB_USER (jovyan). VS Code itself still attaches as `remoteUser`.
+    "runArgs": ["--user", "root"],
+    // Let the image's CMD (`start-notebook.py`) run Jupyter Lab instead of
+    // VS Code replacing it with `sleep infinity`. start.sh keeps the
+    // container alive in the foreground.
+    "overrideCommand": false,
+    "containerEnv": {
+        // Grant passwordless sudo to jovyan. Set to "yes" to enable.
+        // This is often necessary for installing and/or debugging stuff as root.
+        "GRANT_SUDO": "no",
+        // Change this canned token ('SECRET') to something else for security.
+        "NOTEBOOK_ARGS": "--ServerApp.token='SECRET' --ServerApp.password='' --ServerApp.disable_check_xsrf=True",
+        // Restart jupyterlab server if it dies. Set to "yes" to enable.
+        "RESTARTABLE": "yes",
+        // Quarto VS Code extension looks for this to find the CLI, but it's not on the PATH by default in the Jupyter Docker Stacks images.
+        "QUARTO_PATH": "/opt/quarto/bin/quarto",
+        // Quarto VS Code extension uses this to find the Python environment to run quarto-python, but it's not on the PATH by default in the Jupyter Docker Stacks images.
+        "QUARTO_PYTHON": "/opt/conda/bin/python"
+    },
+    "workspaceFolder": "/home/jovyan/work",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/jovyan/work,type=bind,consistency=cached",
+    "forwardPorts": [8888, 3000, 4200],
+    "portsAttributes": {
+        "8888": {"label": "Jupyter"},
+        "3000": {"label": "Quarto preview"},
+        "4200": {"label": "nbdev preview"}
+    },
+    "postCreateCommand": "pip install -e '.[dev]' && nbdev-install-hooks || true"
+}

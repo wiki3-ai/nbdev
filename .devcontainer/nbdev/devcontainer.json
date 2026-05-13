@@ -1,0 +1,71 @@
+// nbdev devcontainer — RECOMMENDED for contributing to nbdev itself.
+//
+// Same image as the "scipy" variant (the dev deps in pyproject.toml — pandas,
+// matplotlib, sphinx, etc. — live there) but configured for active development
+// on the nbdev codebase:
+//   - passwordless sudo is on by default so you can install missing tools
+//   - black + GitHub PR / pre-commit extensions are preinstalled
+//   - format-on-save is enabled for .py files
+//   - postCreateCommand also installs pre-commit hooks
+//
+// Downstream content repos should NOT copy this file — they should consume
+// the published GHCR image instead. See examples/downstream-devcontainer.json.
+{
+    "name": "nbdev ★ recommended for contributors",
+    "build": {
+        "context": "../..",
+        "dockerfile": "../../Dockerfile",
+        "args": {
+            "BASE_IMAGE": "quay.io/jupyter/scipy-notebook:latest",
+            "QUARTO_VERSION": "latest"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter",
+                "quarto.quarto",
+                "ms-python.black-formatter",
+                "GitHub.vscode-pull-request-github",
+                "eamodio.gitlens",
+                "tamasfe.even-better-toml"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/opt/conda/bin/python",
+                "quarto.python.pythonPath": "/opt/conda/bin/python",
+                "editor.formatOnSave": true,
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.black-formatter"
+                },
+                "python.testing.pytestEnabled": true,
+                "files.watcherExclude": {
+                    "**/_proc/**": true,
+                    "**/_docs/**": true,
+                    "**/.quarto/**": true,
+                    "**/walkthrough_files/**": true
+                }
+            }
+        }
+    },
+    "remoteUser": "jovyan",
+    "runArgs": ["--user", "root"],
+    "overrideCommand": false,
+    "containerEnv": {
+        // Sudo on by default for contributors — easier to install/debug tools.
+        "GRANT_SUDO": "yes",
+        "NOTEBOOK_ARGS": "--ServerApp.token='SECRET' --ServerApp.password='' --ServerApp.disable_check_xsrf=True",
+        "RESTARTABLE": "yes",
+        "QUARTO_PATH": "/opt/quarto/bin/quarto",
+        "QUARTO_PYTHON": "/opt/conda/bin/python"
+    },
+    "workspaceFolder": "/home/jovyan/work",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/jovyan/work,type=bind,consistency=cached",
+    "forwardPorts": [8888, 3000, 4200],
+    "portsAttributes": {
+        "8888": {"label": "Jupyter"},
+        "3000": {"label": "Quarto preview"},
+        "4200": {"label": "nbdev preview"}
+    },
+    "postCreateCommand": "pip install -e '.[dev]' && nbdev-install-hooks && pre-commit install || true"
+}
