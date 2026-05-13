@@ -1,19 +1,14 @@
-// nbdev development container.
+// nbdev devcontainer — Jupyter Docker Stacks "minimal" variant.
 //
-// Builds the repo's Dockerfile, which layers Quarto and nbdev's dev
-// dependencies on top of a configurable Jupyter Docker Stacks base image.
-// Switch the base image by changing the BASE_IMAGE build arg below to any
-// image from https://github.com/jupyter/docker-stacks/tree/main/images, e.g.
-//   quay.io/jupyter/minimal-notebook:latest
-//   quay.io/jupyter/scipy-notebook:latest
-//   quay.io/jupyter/datascience-notebook:latest
-//   quay.io/jupyter/pytorch-notebook:latest
-//   quay.io/jupyter/tensorflow-notebook:latest
+// Each sibling folder under .devcontainer/ targets a different Jupyter
+// Docker Stacks base image. VS Code (and GitHub Codespaces) show a picker
+// for these when you choose "Reopen in Container".
+// See https://github.com/jupyter/docker-stacks/tree/main/images
 {
-    "name": "nbdev",
+    "name": "nbdev (minimal)",
     "build": {
-        "context": "..",
-        "dockerfile": "../Dockerfile",
+        "context": "../..",
+        "dockerfile": "../../Dockerfile",
         "args": {
             "BASE_IMAGE": "quay.io/jupyter/minimal-notebook:latest",
             "QUARTO_VERSION": "latest"
