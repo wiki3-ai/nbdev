@@ -4,9 +4,9 @@
 // matplotlib, sphinx, etc. — live there) but configured for active development
 // on the nbdev codebase:
 //   - passwordless sudo is on by default so you can install missing tools
-//   - black + GitHub PR / pre-commit extensions are preinstalled
+//   - black + GitHub PR extensions are preinstalled
 //   - format-on-save is enabled for .py files
-//   - postCreateCommand also installs pre-commit hooks
+//   - postCreateCommand does an editable install and sets up nbdev's git hooks
 //
 // Downstream content repos should NOT copy this file — they should consume
 // the published GHCR image instead. See examples/downstream-devcontainer.json.
@@ -80,5 +80,5 @@
             "label": "nbdev preview"
         }
     },
-    "postCreateCommand": "pip install -e '.[dev]' && nbdev-install-hooks && pre-commit install || true"
+    "postCreateCommand": "pip install -e '.[dev]' && nbdev-install-hooks || true"
 }
